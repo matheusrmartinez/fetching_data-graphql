@@ -1,21 +1,32 @@
-import React, { useEffect, useState } from "react";
-import { useQuery, gql } from "@apollo/client";
+import { useEffect, useState } from "react";
+import { useQuery } from "@apollo/client";
 import { LOAD_USERS } from "../GraphQL/Queries";
+interface UserData {
+  id: number;
+  firstName: string;
+  email: string;
+  password: string;
+}
 
 export default function GetUsers() {
-  const { error, loading, data } = useQuery(LOAD_USERS);
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState<UserData[]>([] as UserData[]);
+  const { error, loading, data, refetch } = useQuery(LOAD_USERS);
 
   useEffect(() => {
-    console.log(data);
-    if (data) setUsers(data.getAllUsers);
+    if (data) {
+      const { getAllUsers} = data
+      const allUsers: UserData[] = JSON.parse(JSON.stringify(getAllUsers))
+      setUsers(allUsers);
+    }
   }, [data]);
 
   return (
     <div>
-      {users.map((user: any, index) => (
+      <button style={{marginTop: 0, marginBottom: '30px'}} onClick={() => refetch()}>Recarregar</button>
+      {users.map((user, index) => (
         <h1 key={index}>{user.firstName}</h1>
       ))}
+      
     </div>
   );
 }
